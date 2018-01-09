@@ -9,99 +9,95 @@ namespace Nodes\NemId\Core;
  *
  * @author  Taken from the WAYF repo
  */
-class X509Helper extends Der
-{
-    /**
-     * @author Casper Rasmussen <cr@nodes.dk>
-     *
-     * @throws \Exception
-     *
-     * @return array
-     */
-    public function generalName()
-    {
-        $tag = $this->peek();
-        switch ($tag) {
-            case 0:
-                $res['otherName'] = $this->oid(-6);
-                break;
-            case 1:
-                $res['rfc822Name'] = $this->next(-22);
-                break;
-            case 2:
-                $res['dNSName'] = $this->next(-22);
-                break;
-            case 4:
-                $this->next(4);
-                $res['directoryName'] = $this->name();
-                $res['directoryName_'] = $this->nameAsString($res['directoryName']);
-                break;
-            case 6:
-                $res['uniformResourceIdentifier'] = $this->next(-22);
-                break;
-            default:
-                throw new \Exception("Unsupported GeneralName: $tag");
-        }
+class X509Helper extends Der {
+	/**
+	 * @author Casper Rasmussen <cr@nodes.dk>
+	 *
+	 * @throws \Exception
+	 *
+	 * @return array
+	 */
+	public function generalName() {
+		$tag = $this->peek();
+		switch ($tag) {
+			case 0:
+				$res['otherName'] = $this->oid(-6);
+				break;
+			case 1:
+				$res['rfc822Name'] = $this->next(-22);
+				break;
+			case 2:
+				$res['dNSName'] = $this->next(-22);
+				break;
+			case 4:
+				$this->next(4);
+				$res['directoryName'] = $this->name();
+				$res['directoryName_'] = $this->nameAsString($res['directoryName']);
+				break;
+			case 6:
+				$res['uniformResourceIdentifier'] = $this->next(-22);
+				break;
+			default:
+				throw new \Exception("Unsupported GeneralName: $tag");
+		}
 
-        return $res;
-    }
+		return $res;
+	}
 
-    /**
-     * @author Casper Rasmussen <cr@nodes.dk>
-     *
-     * @param null $tag
-     *
-     * @throws \Exception
-     *
-     * @return array
-     */
-    public function generalNames($tag = null)
-    {
-        $res = [];
-        $this->beginsequence($tag);
-        while ($this->in()) {
-            $res[] = $this->generalName();
-        }
-        $this->end();
+	/**
+	 * @author Casper Rasmussen <cr@nodes.dk>
+	 *
+	 * @param null $tag
+	 *
+	 * @throws \Exception
+	 *
+	 * @return array
+	 */
+	public function generalNames($tag = null) {
+		$res = [];
+		$this->beginsequence($tag);
+		while ($this->in()) {
+			$res[] = $this->generalName();
+		}
+		$this->end();
 
-        return $res;
-    }
+		return $res;
+	}
 
-    /**
-     * @author Casper Rasmussen <cr@nodes.dk>
-     *
-     * @param $name
-     *
-     * @return string
-     */
-    public function nameAsString($name)
-    {
-        $rdnd = '';
-        $res = '';
-        $abbvrs = [
-            'countryName'            => 'c',
-            'organizationName'       => 'o',
-            'commonName'             => 'cn',
-            'stateOrProvinceName'    => 'state',
-            'localityName'           => 'l',
-            'organizationalUnitName' => 'ou',
-            'domainComponent'        => 'dc',
-        ];
-        foreach ($name as $rdn) {
-            $mrdnd = '';
-            $r = '';
-            foreach ($rdn as $type => $value) {
-                if (substr($type, -1) == '*') {
-                    continue;
-                }
-                $type = empty($abbvrs[$type]) ? $type : $abbvrs[$type];
-                $r .= $mrdnd.$type.'='.$value;
-                $mrdnd = '+';
-            }
-            $res .= $rdnd.$r;
-            $rdnd = ',';
-        }
+	/**
+	 * @author Casper Rasmussen <cr@nodes.dk>
+	 *
+	 * @param $name
+	 *
+	 * @return string
+	 */
+	public function nameAsString($name) {
+		$rdnd = '';
+		$res = '';
+		$abbvrs = [
+			'countryName' => 'c',
+			'organizationName' => 'o',
+			'commonName' => 'cn',
+			'stateOrProvinceName' => 'state',
+			'localityName' => 'l',
+			'organizationalUnitName' => 'ou',
+			'domainComponent' => 'dc',
+		];
+		foreach ($name as $rdn) {
+			$mrdnd = '';
+			$r = '';
+			foreach ($rdn as $type => $value) {
+				if (substr($type, -1) == '*') {
+					continue;
+				}
+				$type = empty($abbvrs[$type]) ? $type : $abbvrs[$type];
+				$r .= $mrdnd.$type.'='.$value;
+				$mrdnd = '+';
+			}
+			$res .= $rdnd.$r;
+			$rdnd = ',';
+		}
 
-        return $res;
-    }
+		return $res;
+	}
 }

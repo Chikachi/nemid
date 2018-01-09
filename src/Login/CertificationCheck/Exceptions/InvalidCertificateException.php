@@ -7,6 +7,5 @@ namespace Nodes\NemId\Login\CertificationCheck\Exceptions;
  *
  * @author  Casper Rasmussen <cr@nodes.dk>
  */
-class InvalidCertificateException extends \Exception
-{
+class InvalidCertificateException extends \Exception {
 }

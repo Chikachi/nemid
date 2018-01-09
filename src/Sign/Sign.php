@@ -1,39 +1,45 @@
 <?php
 
-namespace Nodes\NemId\Login;
+namespace Nodes\NemId\Sign;
 
 use Nodes\NemId\Core\iFrameGenerator;
 use Nodes\NemId\Core\Mode;
 use Nodes\NemId\Core\Nemid52Compat;
 
-class Login extends iFrameGenerator {
+class Sign extends iFrameGenerator {
+	protected $signData;
+
 	/**
-	 * Login constructor.
+	 * Sign constructor.
 	 *
-	 * @author Casper Rasmussen <cr@nodes.dk>
-	 *
+	 * @param ISignData $signData
 	 * @param array $settings
 	 * @param Mode|null $mode
 	 */
-	public function __construct(array $settings, $mode = null) {
-		parent::__construct(new LoginSettings($settings, $mode));
+	public function __construct($signData, array $settings, $mode = null) {
+		$this->signData = $signData;
+		parent::__construct(new SignSettings($settings, $mode));
 	}
 
 	/**
 	 * Generate the params for iFrame.
 	 *
 	 * @author Casper Rasmussen <cr@nodes.dk>
+	 * @throws \Exception
 	 */
 	function generateParams() {
-		// Trim certificate
-		$certificate = preg_replace('/(-----BEGIN CERTIFICATE-----|-----END CERTIFICATE-----|\s)/s', '', $this->settings->getCertificate());
+		if ($this->signData == null) {
+			throw new \Exception('Missing data to sign');
+		}
 
-		// Init start params
-		$params = [
-			'SP_CERT' => base64_encode($certificate),
-			'CLIENTFLOW' => 'OCESLOGIN2',
-			'TIMESTAMP' => $this->timeStamp,
-		];
+		$params = array_merge(
+			[
+				'SP_CERT' => $this->settings->getCertificateBase64(),
+				'CLIENTFLOW' => 'OCESSIGN2',
+				'TIMESTAMP' => $this->timeStamp,
+			],
+			$this->signData->getParams()
+		);
 
 		// Add origin if set
 		if ($this->settings->hasOrigin()) {

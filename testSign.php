@@ -1,17 +1,19 @@
 <?php
+require __DIR__ . '/vendor/autoload.php';
 
-require __DIR__.'/vendor/autoload.php';
-
-$config = include __DIR__.'/config/nemid.php';
+$config = include __DIR__ . '/config/nemid.php';
 
 $config['test'] = true;
 $config['login']['testSettings']['privateKeyPassword'] = 'Test1234';
-$config['login']['testSettings']['privateKeyLocation'] = __DIR__.'/testcertificates/test_private.pem';
-$config['login']['testSettings']['certificateLocation'] = __DIR__.'/testcertificates/test_public.pem';
+$config['login']['testSettings']['privateKeyLocation'] = __DIR__ . '/testcertificates/test_private.pem';
+$config['login']['testSettings']['certificateLocation'] = __DIR__ . '/testcertificates/test_public.pem';
 
-$login = new \Nodes\NemId\Login\Login($config);
+$signer = new \Nodes\NemId\Sign\Sign(
+	new \Nodes\NemId\Sign\TextSignData('Hello World'),
+	$config
+);
 $parameters = [];
-foreach (json_decode($login->getParams(), true) as $param => $value) {
+foreach (json_decode($signer->getParams(), true) as $param => $value) {
     $parameters[] = sprintf('"%s":"%s"', $param, $value);
 }
 $parameters = implode(',', $parameters);
@@ -21,13 +23,13 @@ echo <<<HTML
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>NemID - Login</title>
+    <title>NemID - Sign</title>
 </head>
 <body>
 
-<iframe id="nemid_iframe" title="NemID" allowfullscreen="true" scrolling="no" frameborder="0" style="width:320px;height:460px;border:0" src="{$login->getIFrameUrl()}"></iframe>
+<iframe id="nemid_iframe" title="NemID" allowfullscreen="true" scrolling="no" frameborder="0" style="width:320px;height:460px;border:0" src="{$signer->getIFrameUrl()}"></iframe>
 
-<form method="post" action="#" id="postBackForm">
+<form method="post" action="testCallback.php" id="postBackForm">
     <input type="hidden" name="response" value=""/>
 </form>
     
@@ -42,12 +44,12 @@ echo <<<HTML
         if (message.command === "SendParameters") {
             postMessage.command = "parameters";
             postMessage.content = '{{$parameters}}';
-            win.postMessage(JSON.stringify(postMessage), "{$login->getBaseUrl()}");
+            win.postMessage(JSON.stringify(postMessage), "{$signer->getBaseUrl()}");
         }
 
         if (message.command === "changeResponseAndSubmit") {
             document.getElementById('postBackForm').response.value = message.content;
-            //document.postBackForm.submit();
+            document.getElementById('postBackForm').submit();
         }
     }
 
