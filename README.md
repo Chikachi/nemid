@@ -6,7 +6,8 @@ I'm sure it can be used easily without laravel also. Feel free to contribute to 
 
 ![image](https://cloud.githubusercontent.com/assets/1279756/20196240/18e4a2b8-a79a-11e6-832b-36933da588e3.png)
  
-### The library supports: 
+### The library supports:
+
   - Preparing the parameters for the applet
   - Validate the returned signature and the certificate chain
   - Extract Name and PID
@@ -52,28 +53,34 @@ php artisan vendor:publish --provider="Nodes\NemId\ServiceProvider" --force
 
 ## Certificates
 
-####Make sure you have bcmath installed
+#### Make sure you have bcmath installed
+
 ```
 sudo apt-get install php7.0-bcmath
 ```
 
 You got your p12 certificate now generate pem files, use following commands: 
 
-#####publicCertificate:
+##### publicCertificate:
+
 `openssl pkcs12 -in path.p12 -out certificate.pem -clcerts -nokeys`
 
-#####privateKey & privateKeyPassword
+##### privateKey & privateKeyPassword
+
 `openssl pkcs12 -in path.p12 -clcerts -out privateKey.pem`
 
-#####certifateAndPrivateKey & password (For PID/CPR match)
+##### certifateAndPrivateKey & password (For PID/CPR match)
+
 `openssl pkcs12 -in path.p12 -out certicateAndPrivateKey.pem -nocerts -nodes`     
 
 Now you have all the certificates needed 
 
 ##### Copy the config file to htdocs and fill settings
+
 Look in the config file for more help
 
-#Login integration
+# Login integration
+
 In the inspiration folder an example of how you can setup the login flow can be found.
 
 First prepare parameters to inject into the iframe. By creating a Login object.
@@ -104,7 +111,8 @@ Now validate the certificates and extract name and PID from it by initialize a C
 
 `$certificate->getSubject()->getPid();`
 
-#PID/CPR match integration
+# PID/CPR match integration
+
 Initialize a PidCprMatch object and call the function with pid and cpr params.
 
 `$pidCprMatch = new PidCprMatch(config('nodes.nemid'));`
