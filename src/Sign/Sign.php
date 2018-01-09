@@ -5,6 +5,7 @@ namespace Nodes\NemId\Sign;
 use Nodes\NemId\Core\iFrameGenerator;
 use Nodes\NemId\Core\Mode;
 use Nodes\NemId\Core\Nemid52Compat;
+use Nodes\NemId\Sign\Data\ISignData;
 
 class Sign extends iFrameGenerator {
 	protected $signData;
