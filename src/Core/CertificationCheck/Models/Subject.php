@@ -102,7 +102,7 @@ class Subject {
 			curl_close($ch);
 
 			if ($result !== false) {
-				$this->businessData = json_decode($result);
+				$this->businessData = json_decode($result, true);
 			}
 		}
 
