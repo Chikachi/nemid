@@ -1,6 +1,6 @@
 <?php
 
-namespace Nodes\NemId\Login\Errors;
+namespace Nodes\NemId\Core\Errors;
 
 /**
  * Class ErrorHandler.
@@ -16,7 +16,7 @@ class ErrorHandler {
 	 *
 	 * @param $code
 	 *
-	 * @return \Nodes\NemId\Login\Errors\Error
+	 * @return \Nodes\NemId\Core\Errors\Error
 	 */
 	public static function getByCode($code) {
 		$codes = require_once dirname(__FILE__).'/errors.php';

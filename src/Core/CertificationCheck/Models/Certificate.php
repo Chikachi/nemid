@@ -1,6 +1,6 @@
 <?php
 
-namespace Nodes\NemId\Login\CertificationCheck\Models;
+namespace Nodes\NemId\Core\CertificationCheck\Models;
 
 /**
  * Class Certificate.
@@ -84,7 +84,7 @@ class Certificate {
 	/**
 	 * @author Casper Rasmussen <cr@nodes.dk>
 	 *
-	 * @return \Nodes\NemId\Login\CertificationCheck\Models\Subject
+	 * @return \Nodes\NemId\Core\CertificationCheck\Models\Subject
 	 */
 	public function getSubject() {
 		return new Subject(end($this->getTbsCertificate()['subject']));

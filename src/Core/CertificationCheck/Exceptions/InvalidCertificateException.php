@@ -1,6 +1,6 @@
 <?php
 
-namespace Nodes\NemId\Login\CertificationCheck\Exceptions;
+namespace Nodes\NemId\Core\CertificationCheck\Exceptions;
 
 /**
  * Class InvalidCertificateException.

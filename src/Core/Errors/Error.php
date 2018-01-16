@@ -1,6 +1,8 @@
 <?php
 
-namespace Nodes\NemId\Login\Errors;
+
+
+namespace Nodes\NemId\Core\Errors;
 
 /**
  * Class Error.

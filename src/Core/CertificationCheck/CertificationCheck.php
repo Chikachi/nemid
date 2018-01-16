@@ -1,14 +1,14 @@
 <?php
 
-namespace Nodes\NemId\Login\CertificationCheck;
+namespace Nodes\NemId\Core\CertificationCheck;
 
 use GuzzleHttp\Client;
 use Nodes\NemId\Core\Nemid52Compat;
 use Nodes\NemId\Core\OCSP;
 use Nodes\NemId\Core\X509;
-use Nodes\NemId\Login\CertificationCheck\Exceptions\InvalidCertificateException;
-use Nodes\NemId\Login\CertificationCheck\Exceptions\InvalidSignatureException;
-use Nodes\NemId\Login\CertificationCheck\Models\Certificate;
+use Nodes\NemId\Core\CertificationCheck\Exceptions\InvalidCertificateException;
+use Nodes\NemId\Core\CertificationCheck\Exceptions\InvalidSignatureException;
+use Nodes\NemId\Core\CertificationCheck\Models\Certificate;
 
 /**
  * Class UserCertificateCheck.
@@ -64,10 +64,10 @@ class CertificationCheck {
 	 *
 	 * @param   $xml
 	 *
-	 * @throws \Nodes\NemId\Login\CertificationCheck\Exceptions\InvalidCertificateException
-	 * @throws \Nodes\NemId\Login\CertificationCheck\Exceptions\InvalidSignatureException
+	 * @throws \Nodes\NemId\Core\CertificationCheck\Exceptions\InvalidCertificateException
+	 * @throws \Nodes\NemId\Core\CertificationCheck\Exceptions\InvalidSignatureException
 	 *
-	 * @return \Nodes\NemId\Login\CertificationCheck\Models\Certificate
+	 * @return \Nodes\NemId\Core\CertificationCheck\Models\Certificate
 	 */
 	public function checkAndReturnCertificate($xml) {
 		// Parse the xml
@@ -105,7 +105,7 @@ class CertificationCheck {
 	/**
 	 * @author Casper Rasmussen <cr@nodes.dk>
 	 *
-	 * @param \Nodes\NemId\Login\CertificationCheck\Models\Certificate $certificate
+	 * @param \Nodes\NemId\Core\CertificationCheck\Models\Certificate $certificate
 	 *
 	 * @return string
 	 */
@@ -123,7 +123,7 @@ class CertificationCheck {
 	 * @param $signatureAlgorithm
 	 * @param $publicKeyPem
 	 *
-	 * @throws \Nodes\NemId\Login\CertificationCheck\Exceptions\InvalidSignatureException
+	 * @throws \Nodes\NemId\Core\CertificationCheck\Exceptions\InvalidSignatureException
 	 */
 	protected function verifyRSASignature($data, $signature, $signatureAlgorithm, $publicKeyPem) {
 		$publicKey = openssl_get_publickey($publicKeyPem);
@@ -142,8 +142,8 @@ class CertificationCheck {
 	 *
 	 * @param array $certificateChain
 	 *
-	 * @throws \Nodes\NemId\Login\CertificationCheck\Exceptions\InvalidCertificateException
-	 * @throws \Nodes\NemId\Login\CertificationCheck\Exceptions\InvalidSignatureException
+	 * @throws \Nodes\NemId\Core\CertificationCheck\Exceptions\InvalidCertificateException
+	 * @throws \Nodes\NemId\Core\CertificationCheck\Exceptions\InvalidSignatureException
 	 */
 	protected function simpleVerifyCertificateChain(array $certificateChain) {
 		// Init variable
@@ -211,9 +211,9 @@ class CertificationCheck {
 	 * @author Casper Rasmussen <cr@nodes.dk>
 	 *
 	 * @param \DomXPath $xp
-	 * @param \Nodes\NemId\Login\CertificationCheck\Models\Certificate $certificate
+	 * @param \Nodes\NemId\Core\CertificationCheck\Models\Certificate $certificate
 	 *
-	 * @throws \Nodes\NemId\Login\CertificationCheck\Exceptions\InvalidSignatureException
+	 * @throws \Nodes\NemId\Core\CertificationCheck\Exceptions\InvalidSignatureException
 	 */
 	protected function verifySignature(\DomXPath $xp, Certificate $certificate) {
 		$context = $xp->query('/openoces:signature/ds:Signature')->item(0);
@@ -245,8 +245,8 @@ class CertificationCheck {
 	 *
 	 * @param array $certificateChain
 	 *
-	 * @throws \Nodes\NemId\Login\CertificationCheck\Exceptions\InvalidCertificateException
-	 * @throws \Nodes\NemId\Login\CertificationCheck\Exceptions\InvalidSignatureException
+	 * @throws \Nodes\NemId\Core\CertificationCheck\Exceptions\InvalidCertificateException
+	 * @throws \Nodes\NemId\Core\CertificationCheck\Exceptions\InvalidSignatureException
 	 */
 	protected function checkOcsp(array $certificateChain) {
 		// the cert we are checking

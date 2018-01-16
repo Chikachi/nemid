@@ -1,7 +1,7 @@
 <?php
 
-use Nodes\NemId\Login\CertificationCheck\CertificationCheck;
-use Nodes\NemId\Login\Errors\ErrorHandler;
+use Nodes\NemId\Core\CertificationCheck\CertificationCheck;
+use Nodes\NemId\Core\Errors\ErrorHandler;
 
 if (!isset($_POST['response'])) {
 	die('Missing response');

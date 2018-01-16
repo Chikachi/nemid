@@ -9,7 +9,7 @@ $config['login']['testSettings']['privateKeyLocation'] = __DIR__ . '/testcertifi
 $config['login']['testSettings']['certificateLocation'] = __DIR__ . '/testcertificates/test_public.pem';
 
 $signer = new \Nodes\NemId\Sign\Sign(
-	new \Nodes\NemId\Sign\TextSignData('Hello World'),
+	new \Nodes\NemId\Sign\Data\TextSignData('Hello World'),
 	$config
 );
 $parameters = [];

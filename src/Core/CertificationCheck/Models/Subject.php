@@ -1,6 +1,6 @@
 <?php
 
-namespace Nodes\NemId\Login\CertificationCheck\Models;
+namespace Nodes\NemId\Core\CertificationCheck\Models;
 
 /**
  * Class Subject.
@@ -16,6 +16,7 @@ class Subject {
 	protected $cvr;
 	protected $rid;
 	protected $isPerson = false;
+	protected $businessData = null;
 
 	/**
 	 * Subject constructor.
@@ -79,6 +80,36 @@ class Subject {
 	}
 
 	/**
+	 * @return mixed
+	 * @throws \Exception
+	 */
+	public function getBusinessData() {
+		if ($this->isPerson()) {
+			throw new \Exception('Tried to get business data on person');
+		}
+		
+		if ($this->businessData == null) {
+			$ch = curl_init();
+			curl_setopt_array(
+				$ch,
+				[
+					CURLOPT_URL => 'http://cvrapi.dk/api?vat='.$this->getCvr().'&country=dk',
+					CURLOPT_RETURNTRANSFER => true,
+					CURLOPT_USERAGENT => 'Nodes/NemId - Chikachi fork - chikachi@chikachi.net'
+				]
+			);
+			$result = curl_exec($ch);
+			curl_close($ch);
+
+			if ($result !== false) {
+				$this->businessData = json_decode($result);
+			}
+		}
+
+		return $this->businessData;
+	}
+
+	/**
 	 * @return bool
 	 */
 	public function isPerson() {
@@ -88,9 +119,11 @@ class Subject {
 	/**
 	 * @author Casper Rasmussen <cr@nodes.dk>
 	 *
+	 * @param bool $withBusinessData
+	 *
 	 * @return array
 	 */
-	public function toArray() {
+	public function toArray($withBusinessData = false) {
 		$result = [
 			'name' => $this->getName(),
 		];
@@ -100,17 +133,23 @@ class Subject {
 			} else {
 				$result['cvr'] = $this->getCvr();
 				$result['rid'] = $this->getRid();
+				if ($withBusinessData) {
+					$result['business'] = $this->getBusinessData();
+				}
 			}
-		} catch (\Exception $ignored) {}
+		} catch (\Exception $ignored) {
+		}
 		return $result;
 	}
 
 	/**
 	 * @author Casper Rasmussen <cr@nodes.dk>
 	 *
+	 * @param bool $withBusinessData
+	 *
 	 * @return string
 	 */
-	public function toJson() {
-		return json_encode($this->toArray());
+	public function toJson($withBusinessData = false) {
+		return json_encode($this->toArray($withBusinessData));
 	}
 }
