@@ -25,12 +25,9 @@ class Login extends iFrameGenerator {
 	 * @author Casper Rasmussen <cr@nodes.dk>
 	 */
 	function generateParams() {
-		// Trim certificate
-		$certificate = preg_replace('/(-----BEGIN CERTIFICATE-----|-----END CERTIFICATE-----|\s)/s', '', $this->settings->getCertificate());
-
 		// Init start params
 		$params = [
-			'SP_CERT' => base64_encode($certificate),
+			'SP_CERT' => $this->settings->getCertificateBase64(),
 			'CLIENTFLOW' => 'OCESLOGIN2',
 			'TIMESTAMP' => $this->timeStamp,
 		];

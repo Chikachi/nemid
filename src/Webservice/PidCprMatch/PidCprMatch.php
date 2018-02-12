@@ -1,9 +1,11 @@
 <?php
 
-namespace Nodes\NemId\PidCprMatch;
+namespace Nodes\NemId\Webservice\PidCprMatch;
 
+use Exception;
 use GuzzleHttp\Client;
-use Nodes\NemId\PidCprMatch\Responses\Response;
+use Nodes\NemId\Webservice\PidCprMatch\Responses\Response;
+use Nodes\NemId\Webservice\WebServiceSettings;
 
 /**
  * Class PidCprMatch.
@@ -12,7 +14,7 @@ use Nodes\NemId\PidCprMatch\Responses\Response;
  */
 class PidCprMatch {
 	/**
-	 * @var \Nodes\NemId\PidCprMatch\WebServiceSettings
+	 * @var WebServiceSettings
 	 */
 	protected $settings;
 
@@ -34,14 +36,13 @@ class PidCprMatch {
 	 * @param $pid
 	 * @param $cpr
 	 *
-	 * @throws \Exception
+	 * @throws Exception
 	 *
-	 * @return \Nodes\NemId\PidCprMatch\Responses\Response
+	 * @return Response
 	 */
 	public function pidCprRequest($pid, $cpr) {
 		// Generate xml document
-		$pidCprRequest =
-			'<?xml version="1.0" encoding="iso-8859-1"?><method name="pidCprRequest" version="1.0"><request><serviceId>x</serviceId><pid>x</pid><cpr>x</cpr></request></method>';
+		$pidCprRequest = '<?xml version="1.0" encoding="iso-8859-1"?><method name="pidCprRequest" version="1.0"><request><serviceId>x</serviceId><pid>x</pid><cpr>x</cpr></request></method>';
 
 		$document = new \DOMDocument();
 		$document->loadXML($pidCprRequest);
@@ -68,7 +69,7 @@ class PidCprMatch {
 
 		// Check that certificate exists
 		if (!file_exists($this->settings->getCertificateAndKey())) {
-			throw new \Exception('Certificate was not found');
+			throw new Exception('Certificate was not found');
 		}
 
 		// Init guzzle client
@@ -98,10 +99,10 @@ class PidCprMatch {
 			// Parse status code
 			$document->loadXML($response->getBody()->getContents());
 			$xp = new \DomXPath($document);
-			$status = intval($xp->query('/method/response/status/@statusCode')->item(0)->value);
+			$status = intval($xp->query('/method/response/status/@statusCode')->item(0)->nodeValue);
 
 			return new Response($status);
-		} catch (\Exception $e) {
+		} catch (Exception $e) {
 			return new Response(-1, $e);
 		}
 	}

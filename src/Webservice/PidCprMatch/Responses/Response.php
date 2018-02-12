@@ -1,6 +1,7 @@
 <?php
+namespace Nodes\NemId\Webservice\PidCprMatch\Responses;
 
-namespace Nodes\NemId\PidCprMatch\Responses;
+use Exception;
 
 /**
  * Class Response.
@@ -27,6 +28,7 @@ class Response {
 
 	/**
 	 * @param int $code
+	 * @param Exception|null $exception
 	 */
 	public function __construct($code, $exception = null) {
 		$this->setBy($code, $exception);
@@ -52,9 +54,9 @@ class Response {
 	 * @param $code
 	 */
 	private function setBy($code, $exception) {
-		$codes = require_once dirname(__FILE__).'/response_codes.php';
+		$codes = require_once __DIR__.'/response_codes.php';
 		$this->code = $code;
-		if (!empty($exception) && $exception instanceof \Exception) {
+		if (!empty($exception) && $exception instanceof Exception) {
 			$this->short = 'Exception';
 			$this->danish = $exception->getMessage();
 			$this->english = $exception->getMessage();

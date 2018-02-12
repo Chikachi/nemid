@@ -1,6 +1,6 @@
 <?php
 
-namespace Nodes\NemId\PidCprMatch;
+namespace Nodes\NemId\Webservice;
 
 use Nodes\NemId\Core\Settings;
 use Nodes\NemId\Core\Mode;
@@ -41,6 +41,11 @@ class WebServiceSettings extends Settings {
 	 * @param Mode|null $mode
 	 */
 	public function __construct(array $settings, $mode = null) {
+		// Fallback to default mode
+		if (!$mode || !($mode instanceof Mode)) {
+			$mode = new Mode();
+		}
+
 		// Retrieve settings
 		$this->rawSettings = $settings;
 

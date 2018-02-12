@@ -40,7 +40,7 @@ class SignSettings extends FrameSettings {
 		$key = $this->isTest ? 'testSettings' : 'settings';
 
 		// Subtract settings for mode
-		$settings = $this->rawSettings['login'][$key];
+		$settings = $this->rawSettings['iframe'][$key];
 
 		// Init variables
 		$this->baseUrl = $settings['baseUrl'];

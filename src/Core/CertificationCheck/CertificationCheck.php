@@ -2,7 +2,6 @@
 
 namespace Nodes\NemId\Core\CertificationCheck;
 
-use GuzzleHttp\Client;
 use Nodes\NemId\Core\Nemid52Compat;
 use Nodes\NemId\Core\OCSP;
 use Nodes\NemId\Core\X509;
@@ -11,7 +10,7 @@ use Nodes\NemId\Core\CertificationCheck\Exceptions\InvalidSignatureException;
 use Nodes\NemId\Core\CertificationCheck\Models\Certificate;
 
 /**
- * Class UserCertificateCheck.
+ * Class CertificationCheck.
  *
  * @author  Casper Rasmussen <cr@nodes.dk>
  */
@@ -50,6 +49,48 @@ class CertificationCheck {
 	}
 
 	/**
+	 * Extracts signature properties from XML.
+	 *
+	 * @param $xml
+	 *
+	 * @return array|bool
+	 */
+	public static function getSignatureProperties($xml) {
+		try {
+			$result = [];
+
+			// Parse the xml
+			$document = new \DOMDocument();
+			$document->loadXML($xml);
+
+			// Create DomXPath
+			$xp = new \DomXPath($document);
+			$xp->registerNamespace('openoces', 'http://www.openoces.org/2006/07/signature#');
+			$xp->registerNamespace('ds', 'http://www.w3.org/2000/09/xmldsig#');
+
+			$signaturePropertiesContext = $xp->query('/openoces:signature/ds:Signature/ds:Object[@Id="ToBeSigned"]/ds:SignatureProperties')->item(0);
+			$signatureProperties = $signaturePropertiesContext->childNodes;
+
+			foreach ($signatureProperties as $signatureProperty) {
+				if (!($signatureProperty instanceof \DOMElement)) {
+					continue;
+				}
+				$name = $xp->query('openoces:Name', $signatureProperty)->item(0)->nodeValue;
+				$valueContext = $xp->query('openoces:Value', $signatureProperty)->item(0);
+				$value = $valueContext->nodeValue;
+				if ($valueContext->getAttribute('Encoding') == 'base64') {
+					$value = base64_decode($value);
+				}
+				$result[strtolower($name)] = $value;
+			}
+
+			return $result;
+		} catch (\Exception $e) {
+			return false;
+		}
+	}
+
+	/**
 	 * Does the checks according to 'Implementation instructions for NemID' p. 35.
 	 * 1. Validate the signature on XMLDSig.
 	 * 2. Extract the certificate from XMLDSig.
@@ -63,13 +104,13 @@ class CertificationCheck {
 	 * @author Casper Rasmussen <cr@nodes.dk>
 	 *
 	 * @param   $xml
-	 *
-	 * @throws \Nodes\NemId\Core\CertificationCheck\Exceptions\InvalidCertificateException
-	 * @throws \Nodes\NemId\Core\CertificationCheck\Exceptions\InvalidSignatureException
+	 * @param int|null $timestamp
 	 *
 	 * @return \Nodes\NemId\Core\CertificationCheck\Models\Certificate
+	 * @throws InvalidCertificateException
+	 * @throws InvalidSignatureException
 	 */
-	public function checkAndReturnCertificate($xml) {
+	public function checkAndReturnCertificate($xml, $timestamp = null) {
 		// Parse the xml
 		$document = new \DOMDocument();
 		$document->loadXML($xml);
@@ -92,10 +133,10 @@ class CertificationCheck {
 		$this->verifySignature($xp, $leafCertificate);
 
 		// Verify certificate chain
-		$this->simpleVerifyCertificateChain($certificateChain);
+		$this->simpleVerifyCertificateChain($certificateChain, $timestamp);
 
 		// Check ocsp
-		if ($this->settings['login']['checkOcsp']) {
+		if ($this->settings['iframe']['checkOcsp']) {
 			$this->checkOcsp($certificateChain);
 		}
 
@@ -141,15 +182,16 @@ class CertificationCheck {
 	 * @author Casper Rasmussen <cr@nodes.dk>
 	 *
 	 * @param array $certificateChain
+	 * @param int|null $timestamp
 	 *
-	 * @throws \Nodes\NemId\Core\CertificationCheck\Exceptions\InvalidCertificateException
-	 * @throws \Nodes\NemId\Core\CertificationCheck\Exceptions\InvalidSignatureException
+	 * @throws InvalidCertificateException
+	 * @throws InvalidSignatureException
 	 */
-	protected function simpleVerifyCertificateChain(array $certificateChain) {
+	protected function simpleVerifyCertificateChain(array $certificateChain, $timestamp = null) {
 		// Init variable
 		$keyUsages = ['digitalSignature'];
 		$maxPathLength = 1; // as per RFC 5280: 'maximum number of non-self-issued intermediate certificates'
-		$now = gmdate(self::GENERALIZED_TIME_FORMAT);
+		$now = gmdate(self::GENERALIZED_TIME_FORMAT, $timestamp);
 
 		// Check length
 		if (count($certificateChain) != ($maxPathLength + 2)) {
@@ -200,7 +242,7 @@ class CertificationCheck {
 		// first digest is for the root ...
 		// check the root digest against a list of known root oces certificates
 		$digest = hash('sha256', $certificateChain[0]->getCertificateDer());
-		if (!in_array($digest, array_values($this->settings['login']['certificationDigests']))) {
+		if (!in_array($digest, array_values($this->settings['iframe']['certificationDigests']))) {
 			throw new InvalidCertificateException('Certificate chain not signed by any trustedroots');
 		}
 	}
@@ -297,7 +339,7 @@ class CertificationCheck {
 			];
 
 			// Set proxy
-			if ($proxy = $this->settings['nemid']['login']['proxy']) {
+			if ($proxy = $this->settings['iframe']['proxy']) {
 				$params['proxy'] = $proxy;
 			}
 
@@ -397,6 +439,7 @@ class CertificationCheck {
 	protected function xml2certs(\DOMXPath $xp, X509 $x509) {
 		$nodeList = $xp->query('/openoces:signature/ds:Signature/ds:KeyInfo/ds:X509Data/ds:X509Certificate');
 
+		$certsbysubject = [];
 		foreach ($nodeList as $node) {
 			$cert = $node->nodeValue;
 			$certhash = $x509->certificate(base64_decode($cert));

@@ -87,6 +87,10 @@ class Certificate {
 	 * @return \Nodes\NemId\Core\CertificationCheck\Models\Subject
 	 */
 	public function getSubject() {
-		return new Subject(end($this->getTbsCertificate()['subject']));
+		$subject = end($this->getTbsCertificate()['subject']);
+		if (strpos($subject['serialNumber'], 'PID') === 0) {
+			return new PersonSubject($subject);
+		}
+		return new BusinessSubject($subject);
 	}
 }

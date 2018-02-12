@@ -1,12 +1,12 @@
 <?php
-require __DIR__ . '/vendor/autoload.php';
+require __DIR__.'/vendor/autoload.php';
 
-$config = include __DIR__ . '/config/nemid.php';
+$config = include __DIR__.'/config/nemid.php';
 
 $config['test'] = true;
-$config['login']['testSettings']['privateKeyPassword'] = 'Test1234';
-$config['login']['testSettings']['privateKeyLocation'] = __DIR__ . '/testcertificates/test_private.pem';
-$config['login']['testSettings']['certificateLocation'] = __DIR__ . '/testcertificates/test_public.pem';
+$config['iframe']['testSettings']['privateKeyPassword'] = 'Test1234';
+$config['iframe']['testSettings']['privateKeyLocation'] = __DIR__.'/testcertificates/test_private.pem';
+$config['iframe']['testSettings']['certificateLocation'] = __DIR__.'/testcertificates/test_public.pem';
 
 $signer = new \Nodes\NemId\Sign\Sign(
 	new \Nodes\NemId\Sign\Data\TextSignData('Hello World'),
@@ -14,7 +14,7 @@ $signer = new \Nodes\NemId\Sign\Sign(
 );
 $parameters = [];
 foreach (json_decode($signer->getParams(), true) as $param => $value) {
-    $parameters[] = sprintf('"%s":"%s"', $param, $value);
+	$parameters[] = sprintf('"%s":"%s"', $param, $value);
 }
 $parameters = implode(',', $parameters);
 

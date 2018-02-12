@@ -16,6 +16,10 @@
             "name": "Casper Rasmussen",
             "email": "cr@nodes.dk",
             "role": "CTO"
+        },
+        {
+            "name": "Chikachi",
+            "email": "chikachi@chikachi.net"
         }
     ],
     "require": {

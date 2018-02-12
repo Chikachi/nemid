@@ -11,9 +11,9 @@ require __DIR__.'/vendor/autoload.php';
 $config = include __DIR__.'/config/nemid.php';
 
 $config['test'] = true;
-$config['login']['testSettings']['privateKeyPassword'] = 'Test1234';
-$config['login']['testSettings']['privateKeyLocation'] = __DIR__.'/testcertificates/test_private.pem';
-$config['login']['testSettings']['certificateLocation'] = __DIR__.'/testcertificates/test_public.pem';
+$config['iframe']['testSettings']['privateKeyPassword'] = 'Test1234';
+$config['iframe']['testSettings']['privateKeyLocation'] = __DIR__.'/testcertificates/test_private.pem';
+$config['iframe']['testSettings']['certificateLocation'] = __DIR__.'/testcertificates/test_public.pem';
 
 $response = base64_decode($_POST['response']);
 if (!CertificationCheck::isXml($response)) {
@@ -35,4 +35,20 @@ try {
 
 // Successfully
 // Redirect with login info $certificate->getSubject()->toJson();
-var_dump($certificate->getSubject()->toJson());
+$userInfo = json_encode($certificate->getSubject()->toArray(), JSON_PRETTY_PRINT);
+$signatureProperties = json_encode(CertificationCheck::getSignatureProperties($response), JSON_PRETTY_PRINT);
+echo <<<HTML
+<!DOCTYPE html>
+<html>
+<head>
+<title></title>
+</head>
+<body>
+<h1>Success</h1>
+<h2>User info</h2>
+<pre>{$userInfo}</pre>
+<h2>Signature Properties</h2>
+<pre>{$signatureProperties}</pre>
+</body>
+</html>
+HTML;
