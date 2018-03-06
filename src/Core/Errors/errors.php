@@ -65,9 +65,14 @@ return [
 		'danish' => 'Du har afbrudt aktiveringen.',
 	],
 	'CAN002' => [
-		'english' => 'The user chose to cancel by pressing the "Afbryd" (Cancel) button. ',
+		'english' => 'You have cancelled login.',
 		'code' => 'CAN002',
 		'danish' => 'Du har afbrudt login.',
+	],
+	'CAN003' => [
+		'english' => 'The connection to the application has timed out or has been interrupted by another app. Please try again.',
+		'code' => 'CAN003',
+		'danish' => 'Forbindelsen til applikationen er timet ud eller er blevet afbrudt af en anden app. Forsøg igen.',
 	],
 	'AUTH001' => [
 		'english' => 'The user exceeded the allowed number password attempts.',
